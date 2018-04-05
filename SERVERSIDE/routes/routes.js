@@ -1,7 +1,4 @@
 
-// ESLINT GLOBALS
-/* global redundancyCheck, getLocationInfo, resetRedundantID, constructSurveyResult, storeResultInDB, redirectToUniqueURL, getResultFromDB, getPageData, renderPage, getErrorHandler, getResultFromDB, sendRatingToAnalytics, putErrorHandler */
-
 const express = require('express');
 const router = express.Router();
 
