@@ -40,7 +40,7 @@ module.exports = (app) => {
       }
 
       res.status(err.status || 500)
-        .render('misc_views/error_page', { message: err.message, errorType: err.status, error: { err } });
+        .send({ message: err.message, errorType: err.status, error: { err } });
     });
   }
 
@@ -55,6 +55,6 @@ module.exports = (app) => {
     }
 
     res.status(err.status || 500)
-      .render('misc_views/error_page', { message: err.message, errorType: err.status, error: {} });
+      .send({ message: err.message, errorType: err.status, error: {} });
   });
 };

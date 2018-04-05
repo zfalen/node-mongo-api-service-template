@@ -5,6 +5,13 @@
 const express = require('express');
 const router = express.Router();
 
+function filterRoutesList(arr) {
+  return arr.map(el => ({
+      path: el.route.path,
+      availableMethods: Object.keys(el.route.methods).filter(key => key !== '_all').map(m => m.toUpperCase())
+    }))
+}
+
 
 // REQUIRE LOGINS FOR STAGING
 const checkAuthentication = (req, res, next) => {
@@ -23,35 +30,72 @@ const checkAuthentication = (req, res, next) => {
  router.route('/')
       .all(checkAuthentication)
       .get( (req, res) => {
-          res.render('production_views/index');
+          res.status(200).send({
+            message: 'This is the root of the api',
+            availableRoutes: filterRoutesList(router.stack),
+          })
       })
-
- router.route('/api')
-      .all( (req, res, next) => {
-        // SEE THIS FILE FOR ALL FUNCTIONS
-        require('./functions/apiFunctions')(req, res);
-        next();
-      })
-      .get( (req, res) => {
-        getFirstUserFromDB
-          .then(sendUserDataToClient)
-          .catch(apiErrorHandler)
-      })
-
-      .post( (req, res) => {
-        getUserFromDB
-          .then(updateOrCreateUser)
-          .catch(apiErrorHandler)
-      })
-
 
 // ----------------------------------------------------------------------------------------------------------------------------------------
 
- // MANUALLY RENDER AN ERROR PAGE IF NECESSARY
- router.route('/oops')
-       .get((req, res) => {
-          res.render('misc_views/error_page', {message: "A critical error occurred.", errorType: 500 });
+ router.route('/quotables')
+      .all( (req, res, next) => {
+        // SEE THIS FILE FOR ALL FUNCTIONS
+        require('./functions/allQuotablesFunctions')(req, res);
+        next();
+      })
+
+      .get( (req, res) => {
+        getAllQuotables()
+          .then(allQuotables => {
+            res.json({ message: 'Got all Quotables successfully', allQuotables})
+          })
+          .catch(quotableErrorHandler)
+      })
+
+      .post( (req, res) => {
+        createQuotable()
+          .then(newQuotable => {
+            res.json({ message: 'Created a new Quotable successfully!', newQuotable });
+          })
+          .catch(quotableErrorHandler)
+      })
+
+// ----------------------------------------------------------------------------------------------------------------------------------------
+
+router.route('/quotables/:id')
+     .all( (req, res, next) => {
+       // SEE THIS FILE FOR ALL FUNCTIONS
+       require('./functions/specificQuotablesFunctions')(req, res);
+       next();
+     })
+
+     .get( (req, res) => {
+       getQuotableById()
+         .then((returnedQuotable) => {
+           res.json({ message: 'Got Quotable successfully', returnedQuotable})
+         })
+         .catch(quotableErrorHandler)
+     })
+
+     .put( (req, res) => {
+       getQuotableById()
+        .then(updateQuotable)
+        .then((updatedQuotable) => {
+          res.json({ message: 'Updated Quotable successfully', updatedQuotable})
         })
+        .catch(quotableErrorHandler)
+     })
+
+     .delete( (req, res) => {
+       getQuotableById()
+        .then(deleteQuotable)
+        .then((removedQuotable) => {
+          res.json({ message: 'Deleted Quotable successfully', removedQuotable})
+        })
+        .catch(quotableErrorHandler)
+     })
+
 
 // ----------------------------------------------------------------------------------------------------------------------------------------
 

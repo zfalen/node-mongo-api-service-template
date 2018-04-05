@@ -2,7 +2,6 @@
 // MODULE DEPENDENCIES
 const http = require('http');
 
-const compiler = require('./webpack/compiler');
 const errorHandlers = require('./errorHandlers');
 
 // NORMALIZE PORT TO NUM, STR, BOOL
@@ -42,12 +41,13 @@ app.set('port', port);
 // CREATE HTTP SERVER & PASS IT OUR EXPRESS INSTANCE
 const server = http.createServer(app);
 
-// COMPILE DEV ASSETS VIA WEBPACK
-// OR STATIC SERVE IN PRODUCTION MODE
-compiler(app);
-
 // MOUNT ERROR HANDLERS LAST!
 errorHandlers(app);
 
 // LISTEN ON DECLARED PORT
 server.listen(port);
+
+console.log('\n');
+console.log('  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀');
+console.log(`  🚀  🚀  🚀  LIFTOFF ON PORT: ${app.get('port')} 🚀  🚀 🚀`);
+console.log('  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀  🚀');

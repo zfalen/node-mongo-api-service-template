@@ -11,16 +11,9 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 
-// FORCE APP TO USE SSL IN HEROKU PRODUCTION MODE
-const ssl = require('heroku-ssl-redirect');
-
 // INSTANTIATE AN EXPRESS INSTANCE
 const app = express();
 
-// LINK THE FAVICON
-// NOT TECHNICALLY A NODE DEPENDENCY, BUT IT MAKES HEROKU HAPPY
-const favicon = require('serve-favicon');
-app.use(favicon(path.join(process.env.PWD, 'CLIENTSIDE/public', 'favicon.ico')));
 
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -35,28 +28,9 @@ require('./models/db');
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-// ************************************************************************
-// ********************* VIEW TEMPLATING ENGINE ***************************
-// ************************************************************************
-
-// EJS
-app.set('views', path.join(process.env.PWD, 'CLIENTSIDE/views'));
-app.set('view engine', 'ejs');
-app.set('view cache', false);
-
-
-// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
 // ***************************************************************************
 // ************************ EXPRESS MIDDLEWARE *******************************
 // ***************************************************************************
-
-// FORCE ALL REQUESTS ACROSS SSL IN HEROKU
-// PRODUCTION MODE ONLY BY DEFAULT
-// DISABLED WHEN SIMULATING PRODUCTION MODE LOCALLY
-// if(process.env.HOST_MODE !== 'localdev') {
-//   app.use(ssl());
-// }
 
 // PARSING REQUESTS
 app.use(bodyParser.json());
@@ -75,6 +49,9 @@ app.use(logger('dev'));
 // ****************************** AUTH ************************************
 // ************************************************************************
 
+// DISABLED IN DEV MODE FOR INITIAL API SETUP
+// SHOULD ENABLE EVENTUALLY FOR ALL REQUESTS
+
 // NOTE: THIS HAS TO COME BEFORE ANY
 // AUTH-PROTECTED ROUTES ARE INSTANTIATED
 const authHandler = require('./auth');
@@ -87,25 +64,15 @@ authHandler(app);
 // ************************ EXPRESS ROUTING *******************************
 // ************************************************************************
 
+// PREVENT FLAVICON REQUESTS B/C THIS IS API-ONLY SERVICE
+app.get('/favicon.ico', (req, res) => {
+    res.status(204);
+});
+
 // THESE ROUTES ARE OUR KEY API ROUTES
 const routes = require('./routes/routes.js');
 app.use('/', routes);
 
-
-// ----------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-// ************************************************************************
-// ************************* STATIC ASSETS ********************************
-// ************************************************************************
-
-// STATIC SERVE THE PUBLIC DIRECTORY AT /public (EG. /images/yourFileName)
-app.use('/', express.static(path.join(process.env.PWD, 'CLIENTSIDE/public')));
-
-if (process.env.NODE_ENV === 'production') {
-  // PRODUCTION MODE ONLY!
-  // SERVE THE STATIC FOLDER WHERE WEBPACK BUILDS PRODUCTION ASSETS
-  app.use('/static', express.static(path.join(process.env.PWD, 'CLIENTSIDE/static')));
-}
 
 
 module.exports = app;

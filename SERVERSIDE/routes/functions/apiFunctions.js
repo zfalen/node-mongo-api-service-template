@@ -1,5 +1,3 @@
-// ESLINT GLOBALS
-/* global WP, wp_pages_data, getPartials */
 
 const mongoose = require('mongoose');
 const User = require('../../models/user');
