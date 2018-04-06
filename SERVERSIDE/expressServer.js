@@ -14,6 +14,9 @@ const bodyParser = require('body-parser');
 // INSTANTIATE AN EXPRESS INSTANCE
 const app = express();
 
+// ALLOW CORS 
+var cors = require('cors');
+app.use(cors());
 
 
 // ----------------------------------------------------------------------------------------------------------------------------------------------------------------
